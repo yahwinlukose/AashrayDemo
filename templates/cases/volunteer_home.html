@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Volunteer Home - Aashray{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Welcome Header -->
+    <div class="dashboard-header text-center">
+        <div class="container">
+            <h1>Welcome, {{ user.first_name|default:user.username }}! 👋</h1>
+            <p>Thank you for being part of our mission to achieve Zero Hunger.</p>
+        </div>
+    </div>
+
+    <!-- Mission Statement -->
+    <div class="mission-box">
+        <h3>Our Mission</h3>
+        <p>
+            Aashray is a youth-driven volunteering platform dedicated to SDG 2: Zero Hunger.
+            By reporting cases of hunger and vulnerability in your community, you're helping
+            us identify and address critical needs. Together, we can make a real difference.
+        </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">📝 Report a Case</h3>
+                    <p class="card-text">Spotted someone in need? Report a case and help us take action.</p>
+                    <a href="{% url 'report_case' %}" class="btn btn-primary">Report Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">👁️ View Cases</h3>
+                    <p class="card-text">See all reported cases and track their progress.</p>
+                    <a href="{% url 'case_board' %}" class="btn btn-secondary">View Cases</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 class="mb-3">Your Impact</h3>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>{{ total_cases }}</h3>
+                <p>Cases Reported</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>{{ recent_cases|length }}</h3>
+                <p>Recent Reports</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>🌟</h3>
+                <p>Making a Difference</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Cases -->
+    {% if recent_cases %}
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mb-3">Your Recent Reports</h3>
+        </div>
+        {% for case in recent_cases %}
+        <div class="col-md-6 mb-3">
+            <div class="card case-item priority-{{ case.priority }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ case.case_type }}</h5>
+                        <span class="badge bg-{{ case.get_priority_badge_class }}">{{ case.get_priority_display
+                            }}</span>
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <strong>Location:</strong> {{ case.place_spotted }}
+                    </p>
+                    <p class="card-text">{{ case.needs|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ case.get_status_badge_class }}">{{ case.get_status_display }}</span>
+                        <small class="text-muted">{{ case.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <strong>Get Started!</strong> You haven't reported any cases yet. Click "Report Now" to make your first
+        contribution.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

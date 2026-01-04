@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Team Dashboard - Aashray{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="dashboard-header text-center">
+        <div class="container">
+            <h1>👥 Team Dashboard</h1>
+            <p>Manage and resolve reported cases</p>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>{{ total_pending }}</h3>
+                <p>Pending Cases</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>{{ total_in_progress }}</h3>
+                <p>In Progress</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h3>{{ total_resolved }}</h3>
+                <p>Resolved</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Cases Section -->
+    <div class="mb-5">
+        <h3 class="mb-3">⏳ Pending Cases (Need Validation)</h3>
+        {% if pending_cases %}
+        <div class="row">
+            {% for case in pending_cases %}
+            <div class="col-lg-6 mb-3">
+                <div class="card case-item priority-{{ case.priority }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ case.case_type }}</h5>
+                            <span class="badge bg-{{ case.get_priority_badge_class }}">{{ case.get_priority_display }}</span>
+                        </div>
+
+                        <p class="text-muted mb-2">
+                            <strong>📍 Location:</strong> {{ case.place_spotted }}
+                        </p>
+
+                        <p class="card-text mb-2">{{ case.needs|truncatewords:30 }}</p>
+
+                        {% if case.image %}
+                        <img src="{{ case.image.url }}" alt="Case image" class="case-image mb-2">
+                        {% endif %}
+
+                        <small class="text-muted d-block mb-3">
+                            Reported by: {{ case.reported_by.first_name|default:case.reported_by.username }} on {{ case.created_at|date:"M d, Y" }}
+                        </small>
+
+                        <form method="post" action="{% url 'update_case_status' case.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex gap-2">
+                                <select name="status" class="form-select">
+                                    <option value="VALIDATED">Validate</option>
+                                    <option value="IN_PROGRESS">Mark In Progress</option>
+                                    <option value="FORWARDED">Forward to Authority</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <strong>Great!</strong> No pending cases at the moment.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- In Progress Cases Section -->
+    <div class="mb-5">
+        <h3 class="mb-3">🔄 In Progress Cases</h3>
+        {% if in_progress_cases %}
+        <div class="row">
+            {% for case in in_progress_cases %}
+            <div class="col-lg-6 mb-3">
+                <div class="card case-item priority-{{ case.priority }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ case.case_type }}</h5>
+                            <div>
+                                <span class="badge bg-{{ case.get_priority_badge_class }} me-1">{{ case.get_priority_display }}</span>
+                                <span class="badge bg-{{ case.get_status_badge_class }}">{{ case.get_status_display }}</span>
+                            </div>
+                        </div>
+
+                        <p class="text-muted mb-2">
+                            <strong>📍 Location:</strong> {{ case.place_spotted }}
+                        </p>
+
+                        <p class="card-text mb-3">{{ case.needs|truncatewords:25 }}</p>
+
+                        <form method="post" action="{% url 'update_case_status' case.id %}">
+                            {% csrf_token %}
+                            <div class="d-flex gap-2">
+                                <select name="status" class="form-select">
+                                    <option value="IN_PROGRESS" {% if case.status == 'IN_PROGRESS' %}selected{% endif %}>
+                                        In Progress</option>
+                                    <option value="RESOLVED">Mark as Resolved</option>
+                                    <option value="FORWARDED">Forward</option>
+                                </select>
+                                <button type="submit" class="btn btn-success">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No cases currently in progress.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Resolved Cases Section -->
+    <div class="mb-4">
+        <h3 class="mb-3">✅ Recently Resolved Cases</h3>
+        {% if resolved_cases %}
+        <div class="row">
+            {% for case in resolved_cases|slice:":6" %}
+            <div class="col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ case.case_type }}</h6>
+                        <p class="text-muted small mb-2">{{ case.place_spotted }}</p>
+                        <span class="badge bg-{{ case.get_status_badge_class }}">{{ case.get_status_display }}</span>
+                        <small class="text-muted d-block mt-2">{{ case.updated_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No resolved cases yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

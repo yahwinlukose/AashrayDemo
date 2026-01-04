@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Aashray{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🌾 Aashray</h1>
+            <p>Welcome back! Login to continue your mission.</p>
+        </div>
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required autofocus>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+
+            <div class="text-center">
+                <p class="text-muted mb-0">Don't have an account?</p>
+                <a href="{% url 'register' %}" class="text-decoration-none">Register as a Volunteer</a>
+            </div>
+        </form>
+
+        <div class="mission-box mt-4">
+            <p class="text-center mb-0 small">
+                <em>"Together, we work towards Zero Hunger - SDG 2"</em>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

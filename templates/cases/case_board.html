@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case Board - Aashray{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1>📋 Case Board</h1>
+        <p class="text-muted">All reported cases across the platform</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="{% url 'case_board' %}">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Filter by Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="priority" class="form-label">Filter by Priority</label>
+                        <select name="priority" id="priority" class="form-select">
+                            <option value="">All Priorities</option>
+                            {% for value, label in priority_choices %}
+                            <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cases Count -->
+    <div class="mb-3">
+        <p class="text-muted">Showing <strong>{{ cases.count }}</strong> case{{ cases.count|pluralize }}</p>
+    </div>
+
+    <!-- Cases Grid -->
+    {% if cases %}
+    <div class="row">
+        {% for case in cases %}
+        <div class="col-lg-6 mb-4">
+            <div class="card case-item priority-{{ case.priority }} h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">{{ case.case_type }}</h5>
+                        <span class="badge bg-{{ case.get_priority_badge_class }}">{{ case.get_priority_display }}</span>
+                    </div>
+
+                    <p class="text-muted mb-2">
+                        <strong>📍 Location:</strong> {{ case.place_spotted }}
+                    </p>
+
+                    <p class="card-text mb-3">{{ case.needs }}</p>
+
+                    {% if case.image %}
+                    <img src="{{ case.image.url }}" alt="Case image" class="case-image mb-3">
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-{{ case.get_status_badge_class }}">{{ case.get_status_display }}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Reported by: {{ case.reported_by.first_name|default:case.reported_by.username }}</small>
+                            <small class="text-muted">{{ case.created_at|date:"M d, Y - h:i A" }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Team/Admin Actions -->
+                    {% if user.is_superuser %}
+                    <hr>
+                    <form method="post" action="{% url 'update_case_status' case.id %}" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <select name="status" class="form-select form-select-sm">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if case.status == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                    {% else %}
+                    {% for group in user.groups.all %}
+                    {% if group.name == 'Team' %}
+                    <hr>
+                    <form method="post" action="{% url 'update_case_status' case.id %}" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <select name="status" class="form-select form-select-sm">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if case.status == value %}selected{% endif %}>{{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h5>No cases found</h5>
+        <p class="mb-0">Try adjusting your filters or check back later.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

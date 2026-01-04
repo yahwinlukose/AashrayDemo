@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report Case - Aashray{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1>📝 Report a Case</h1>
+                <p class="text-muted">Help us identify and address hunger in your community</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Case Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" action="{% url 'report_case' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_case_type" class="form-label">Case Type *</label>
+                            {{ form.case_type }}
+                            <small class="text-muted">e.g., Food Shortage, Malnutrition, Homeless Person</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_place_spotted" class="form-label">Location *</label>
+                            {{ form.place_spotted }}
+                            <small class="text-muted">Be as specific as possible (street, landmark, area)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_needs" class="form-label">Description of Needs *</label>
+                            {{ form.needs }}
+                            <small class="text-muted">Describe the situation and what help is needed</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_priority" class="form-label">Priority Level *</label>
+                            {{ form.priority }}
+                            <small class="text-muted">
+                                <strong>High:</strong> Immediate action needed |
+                                <strong>Medium:</strong> Action needed soon |
+                                <strong>Low:</strong> Can be addressed later
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_image" class="form-label">Upload Image (Optional)</label>
+                            {{ form.image }}
+                            <small class="text-muted">A photo can help our team better understand the situation</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Report</button>
+                            <a href="{% url 'volunteer_home' %}" class="btn btn-outline-primary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="mission-box mt-4">
+                <h5>📌 Important Notes</h5>
+                <ul class="mb-0">
+                    <li>All reports are reviewed by our team before action is taken</li>
+                    <li>Please provide accurate and respectful information</li>
+                    <li>Your report helps us prioritize and allocate resources effectively</li>
+                    <li>Thank you for being a responsible volunteer!</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
