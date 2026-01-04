@@ -16,9 +16,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-aashray-dev-key-change-in-production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False  # Already recommended, but NOT the cause. Still needed for production.
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["aashraydemo-1.onrender.com", "aashraydemo-1.onrender.com", "*"]
+
+# Add these to trust Render domain for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://aashraydemo-1.onrender.com",
+]
+
+# Optional but recommended for security
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 
 # Application definition
